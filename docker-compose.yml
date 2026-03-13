@@ -1,0 +1,47 @@
+services:
+  lobster:
+    build: .
+    container_name: lobster-agent
+
+    volumes:
+      - lobster_workspace:/workspace
+
+    working_dir: /workspace
+    user: "10001:10001"
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=64m
+      - /run:rw,nosuid,nodev,size=16m
+    init: true
+
+    environment:
+      - OPENCLAW_HOME=/workspace
+      - HOME=/workspace/.home
+      - XDG_CACHE_HOME=/workspace/.cache
+      - NODE_OPTIONS=--max-old-space-size=1536
+
+    networks:
+      - lobster_net
+    extra_hosts:
+      - "host.docker.internal:0.0.0.0"
+    ports:
+      - "127.0.0.1:18789:18789"
+
+    security_opt:
+      - no-new-privileges:true
+
+    cap_drop:
+      - ALL
+
+    pids_limit: 256
+    mem_limit: 2g
+    cpus: 1.0
+    restart: unless-stopped
+
+
+networks:
+  lobster_net:
+    driver: bridge
+
+volumes:
+  lobster_workspace:
